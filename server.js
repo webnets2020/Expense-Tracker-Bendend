@@ -1,21 +1,28 @@
-import express from "express";
-import mongoose from "mongoose";
-import cors from 'cors';
+import express, { application } from "express";
+import cors from "cors";
+import bodyParser from "body-parser";
+import transactionRoutes from "./routes/transactionRoutes.js";
+import AuthApi from './routes/AuthApi.js';
+import userApi from './routes/userApi.js';
+import connectDB from "./database/connectDB.js";
+import passport from 'passport';
+import passportConfig from './config/passport.js';
+
 const app = express();
 app.use(cors());
+app.use(bodyParser.json());
+app.use(passport.initialize());
+passportConfig(passport)
 
-
-await mongoose
-  .connect(
-    "mongodb+srv://chencho:1234@expenses-mern.gjvdyft.mongodb.net/?retryWrites=true&w=majority"
-  )
-  console.log("MongoDB connection successfull...!")
+connectDB();
 
 const PORT = 5000;
 
-app.get("/", (req, res) => {
-  res.send("Hello World");
-});
+//middlerware
+
+app.use("/", transactionRoutes);
+app.use("/auth", AuthApi);
+app.use('/user',userApi);
 
 app.listen(PORT, () =>
   console.log(`Server running on port no: http://localhost:${PORT}`)
